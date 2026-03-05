@@ -66,6 +66,7 @@ Acquire_Neon <- function() {
                                           enddate = to_date,
                                           timeIndex = timeIndex,
                                           include.provisional = TRUE)
+  
   SM_data <- SM_list$SWS_30_minute |>            # Use 30 minute VSWC data
     dplyr::filter(verticalPosition == "501") |>  # Only the shallow depth
     dplyr::mutate( # calculate mean of all (horizontal) sensors
