@@ -19,7 +19,7 @@ Get_CDSE_ImageList <- function(aoi, token, max_cloud, tile) {
   # Return a list of suitable images
   img_list <- CDSE::SearchCatalog(aoi = aoi,
                                   from = from_date, to = to_date,
-                                  collection = "sentinel-2-l2a",
+                                  collection = collection,
                                   token = token)
   img_list <- img_list |>
     dplyr::filter(tileCloudCover <= max_cloud) |>
@@ -56,12 +56,44 @@ Plot_Image <- function(img) {
   return(tm)
 }
 
+Acquire_Neon <- function() {
+  # Acquire data for a single site over a short time range
+  # Filter for only the first sensor depth
+  # Return data.frame with only VWC and datetime
+  SM_list <- neonUtilities::loadByProduct(dpID = neon_product,
+                                          site = neon_site,
+                                          startdate = from_date,
+                                          enddate = to_date,
+                                          timeIndex = timeIndex,
+                                          include.provisional = TRUE)
+  SM_data <- SM_list$SWS_30_minute |>            # Use 30 minute VSWC data
+    dplyr::filter(verticalPosition == "501") |>  # Only the shallow depth
+    dplyr::mutate( # calculate mean of all (horizontal) sensors
+      VWC = mean(VSWCMean, na.rm = TRUE), .by = endDateTime) |>  
+    dplyr::mutate(Date = as.Date(endDateTime)) |> # extract date from DateTime column
+    dplyr::select(Date, VWC) |>                  # Keep only the Date and VWC columns
+    dplyr::summarise(VWC = max(VWC), .by = Date) # summarize by Date
+                                                 # Which summary function to use?
+
+  return(SM_data)
+}
+
+Plot_NEON_SoilMoisture <- function(SM_data) {
+  # Prepare column plot of soil moisture along a date range
+  pl <- ggplot(SM_data) +
+    geom_col(aes(x=Date, y=VWC),
+             color = "blue", fill = "lightblue", width = 0.5) +
+    ggtitle("Volumetric water content by Date")
+  
+  return(pl)
+}
+
 Build_rOPTRAM <- function(from_date, to_date) {
 
   return(coeffs)  
 }
 
-Prepare_Soil_Moisture <- function(coeffs, img_date) {
+Prepare_OPTRAM_SoilMoisture <- function(coeffs, img_date) {
   
   return(SM_raster)
 }
