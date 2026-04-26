@@ -9,7 +9,9 @@ pkglist <- c("terra", "sf", "tmap", "CDSE", "rOPTRAM",
 invisible(lapply(pkglist, library, character.only = TRUE))
 
 # parameters for Copernicus download
-Output_dir <- "Output"
+Project_dir <- dirname(getwd())
+Output_dir <- file.path(Project_dir, "Output")
+Download_dir <- file.path(Project_dir, "Data")
 aoi_file <- "aoi.gpkg"
 from_date <- "2025-12-01"
 to_date <- "2026-03-15"
