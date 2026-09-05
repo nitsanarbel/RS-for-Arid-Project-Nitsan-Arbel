@@ -141,5 +141,9 @@ rsconnect/
 
 # ---> Additional 
 Output/
-cdse_credentials.txt
+client_details_copernicus.txt
 .positai
+Data/
+*.Rproj.user
+.Rhistory
+.Rdata
